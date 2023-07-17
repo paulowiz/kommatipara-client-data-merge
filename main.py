@@ -22,21 +22,35 @@ def main(args):
     # start spark code
     sparkutils = SparkUtils("MyApp")
     logger.info("Starting spark application")
+    countries_list = args.countries.split(',')
 
  
-    #do something here
+    # Reading Client dataset
     logger.info("Client Dataset - Reading")
     df_client = sparkutils.read_csv_to_spark_dataframe(args.path1)
-    logger.info("Client Dataset - Previewing")
+    # Remove personal identifiable information columns
+    logger.info("Client Dataset - Removing personal identifiable information columns")
+    df_client = sparkutils.drop_columns_from_dataframe(df_client,["first_name","last_name"])
+    # Rename id to client_identifier
+    logger.info("Client Dataset - Renaming columns")
+    df_client = sparkutils.rename_columns_from_dataframe(df_client,['id'],['client_identifier'])
+    # filter countries
+    logger.info("Client Dataset - Filtering dataframe by countries")
+    df_client = sparkutils.filter_dataframe_by_country(df_client,"country", countries_list)
+    logger.info("Client Dataset - Previewing Data")
     df_client.show()
 
+    # Reading Financial dataset
     logger.info("Financial Dataset - Reading")
-    df_Financial= sparkutils.read_csv_to_spark_dataframe(args.path)
+    df_Financial= sparkutils.read_csv_to_spark_dataframe(args.path2)
+    # Reanme columns 
+    logger.info("Client Dataset - Renaming columns")
+    df_Financial = sparkutils.rename_columns_from_dataframe(df_Financial,['id','btc_a','cc_t'],['client_identifier','bitcoin_address','credit_card_type'])
     logger.info("Financial Dataset - Previewing")
     df_Financial.show(truncate=False)
 
     
-    sparkutils.destroy()
+    sparkutils.destroy_spark_connection()
     return None
 
 if __name__ == '__main__':

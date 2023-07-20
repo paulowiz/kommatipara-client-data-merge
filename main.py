@@ -2,7 +2,9 @@
 from spark_utils import SparkUtils
 import sys,logging
 from datetime import datetime
+import os
 
+folder_output = "client_data"
 # Logging configuration
 formatter = logging.Formatter('[%(asctime)s] %(levelname)s @ line %(lineno)d: %(message)s')
 handler = logging.StreamHandler(sys.stdout)
@@ -46,11 +48,32 @@ def main(args):
     # Reanme columns 
     logger.info("Client Dataset - Renaming columns")
     df_Financial = sparkutils.rename_columns_from_dataframe(df_Financial,['id','btc_a','cc_t'],['client_identifier','bitcoin_address','credit_card_type'])
+    #Drop credit card column
+    df_Financial = sparkutils.drop_columns_from_dataframe(df_Financial,["cc_n"])
     logger.info("Financial Dataset - Previewing")
     df_Financial.show(truncate=False)
-
     
+    #Joing datasets
+    logger.info("Joing dataframes")
+    df_joined = sparkutils.join_two_dataframes(df_client,df_Financial,'client_identifier','inner')
+    logger.info("Preview joined dataset")
+    df_joined.show(truncate=False)
+
+    logger.info("Exporting result dataset.")
+    dt_string = datetime.now().strftime("%Y%m%d_%H_%M_%S")
+    
+    if not os.path.exists('client_data'):
+       os.makedirs('client_data')
+
+    try:
+        df_joined.write.csv(folder_output+'/'+dt_string+'_output.csv')
+    except:
+         df_joined = df_joined.toPandas()
+         df_joined.to_csv(folder_output+'/'+dt_string+'__output.csv')
+
+    #destroy spark connection.
     sparkutils.destroy_spark_connection()
+
     return None
 
 if __name__ == '__main__':

@@ -25,17 +25,20 @@ The company now needs a dataset containing the emails of the clients from the Un
 
  
   
-## 🔨 Installation and Running  
+# 🔨 Installation and Running
+
+Install the required dependencies by running:
+
   
 1. Clone this repository  
   
 2. Install the requirements running  `pip install -r requirements.txt`  
   
-3. Set SPARK_MASTER_URL as enviroment variable with your spark://youurl:port(spark://localhost:7077) otherwise the program will setup `local[*]` as your master url.
+3. Set `SPARK_MASTER_URL` as enviroment variable with your `spark://youurl:port(spark://localhost:7077)` otherwise the program will setup `local[*]` as your master url.
 
 4. Run the following command in the `python main.py --path1 "dataset_one.csv" --path2 "dataset_two.csv" --countries "Netherlands,United Kingdom` directory to run the action. 
 
-Extra Steps
+Extra Steps (Optional)
 
 I've tried to implement docker with apache spark server and you can follow also these steps to use apache spark on docker:
 
@@ -47,20 +50,20 @@ I've tried to implement docker with apache spark server and you can follow also 
 
 <br />  
   
-<!-- File Overview -->  
-  
-## 📚 Project files overview
-  
-- **main.py** main file to run and call the ETL process.
-- **requirements.txt**  Dependencies from the project
-- **spark_utils.py** Class with generic functions to use with pyspark.
-- **test_spark_utils.py** Test file to use with pytest to test our generic functions.
-- **dataset_one.csv** Dataset with client information
-- **dataset_two.csv** Dataset with client's financial information.
-- **.gitignore**  Define files that should be ignored by GIT.
-- **docker-compose.yml**  Docker file to run Apache Spark container and its worker.
+## 📚 Project Files Overview
 
-## 🔓Author and Acknowledgements
+- `main.py`: The main file to run and call the ETL process.
+- `requirements.txt`: A file containing project dependencies.
+- `spark_utils.py`: A class with generic functions to use with PySpark.
+- `test_spark_utils.py`: A test file to use with pytest for testing the generic functions.
+- `dataset_one.csv`: A dataset with client information.
+- `dataset_two.csv`: A dataset with client's financial information.
+- `.gitignore`: Defines files that should be ignored by Git.
+- `docker-compose.yml`: A Docker file to run the Apache Spark container and its worker.
+- `exercise.md`: Assigment documentation.
 
-Author - [Paulo Mota](https://www.linkedin.com/in/paulo-mota-955218a2/)<br>
-Testing library: [Chispa](https://github.com/MrPowers/chispa)<br>
+## 🔓 Author and Acknowledgements
+
+- **Author**: [Paulo Mota](https://www.linkedin.com/in/paulo-mota-955218a2/)<br>
+-**Testing library**:: [Chispa](https://github.com/MrPowers/chispa)<br>
+

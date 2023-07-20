@@ -22,14 +22,15 @@ AppName = "MyPySparkApp"
 
 def main(args):
     # start spark code
-    sparkutils = SparkUtils("MyApp")
+    sparkutils = SparkUtils()
+    spark_session = sparkutils.create_connection_spark("MyApp")
     logger.info("Starting spark application")
     countries_list = args.countries.split(',')
 
  
     # Reading Client dataset
     logger.info("Client Dataset - Reading")
-    df_client = sparkutils.read_csv_to_spark_dataframe(args.path1)
+    df_client = sparkutils.read_csv_to_spark_dataframe(args.path1,spark_session)
     # Remove personal identifiable information columns
     logger.info("Client Dataset - Removing personal identifiable information columns")
     df_client = sparkutils.drop_columns_from_dataframe(df_client,["first_name","last_name"])
@@ -44,7 +45,7 @@ def main(args):
 
     # Reading Financial dataset
     logger.info("Financial Dataset - Reading")
-    df_Financial= sparkutils.read_csv_to_spark_dataframe(args.path2)
+    df_Financial= sparkutils.read_csv_to_spark_dataframe(args.path2,spark_session)
     # Reanme columns 
     logger.info("Client Dataset - Renaming columns")
     df_Financial = sparkutils.rename_columns_from_dataframe(df_Financial,['id','btc_a','cc_t'],['client_identifier','bitcoin_address','credit_card_type'])
@@ -59,7 +60,7 @@ def main(args):
     logger.info("Preview joined dataset")
     df_joined.show(truncate=False)
 
-    logger.info("Exporting result dataset.")
+    logger.info("Exporting result dataset using spark.write")
     dt_string = datetime.now().strftime("%Y%m%d_%H_%M_%S")
     
     if not os.path.exists('client_data'):
@@ -68,11 +69,11 @@ def main(args):
     try:
         df_joined.write.csv(folder_output+'/'+dt_string+'_output.csv')
     except:
+         logger.error("An error occurred in the previous step while attempting to write the data using `write.csv`")
+         logger.info("Exporting dataset converting to pandas.")
          df_joined = df_joined.toPandas()
          df_joined.to_csv(folder_output+'/'+dt_string+'__output.csv')
 
-    #destroy spark connection.
-    sparkutils.destroy_spark_connection()
 
     return None
 

@@ -1,10 +1,8 @@
 # import modules
 from pyspark.sql import SparkSession
-from pyspark.conf import SparkConf 
 from pyspark.sql.functions import col
 from pyspark.sql import DataFrame
 import os
-from datetime import datetime
 from typing import List
 
 class SparkUtils:
@@ -12,24 +10,32 @@ class SparkUtils:
     Class with all generic functions using spark.
     """
 
-    def __init__(self, app_name:str) -> None:
+    def __init__(self) -> None:
         """
         Constructor class.
+        """
+        pass
+
+    def create_connection_spark(self,app_name):
+         """
+        Create spark connection.
 
         :param app_name: spark app name
         :type app_name: str
         """
-        self.spark = SparkSession \
-            .builder \
-            .appName(app_name) \
-            .master(os.environ.get("SPARK_MASTER_URL", "local[*]"))\
-            .config("spark.driver.host","127.0.0.1") \
-            .config("spark.driver.bindAddress","127.0.0.1")\
-            .config("spark.local.dir","tmp")\
-            .getOrCreate()
-        self.spark.sparkContext.setLogLevel("ERROR")
+         spark_session = SparkSession \
+                .builder \
+                .appName(app_name) \
+                .master(os.environ.get("SPARK_MASTER_URL", "local[*]"))\
+                .config("spark.driver.host","127.0.0.1") \
+                .config("spark.driver.bindAddress","127.0.0.1")\
+                .config("spark.local.dir","tmp")\
+                .getOrCreate()
+         spark_session.sparkContext.setLogLevel("ERROR")
+         return spark_session
+    
 
-    def read_csv_to_spark_dataframe(self, path:str) -> DataFrame:
+    def read_csv_to_spark_dataframe(self, path:str,spark_session: SparkSession) -> DataFrame:
         """
         Read a csv into spark dataframe.
 
@@ -38,7 +44,7 @@ class SparkUtils:
         :return: spark dataframe
         :rtype: DataFrame
         """ 
-        return self.spark.read.option("delimiter", ",").option("header", "true").csv(path)
+        return spark_session.read.option("delimiter", ",").option("header", "true").csv(path)
     
     def rename_columns_from_dataframe(self, dataframe: DataFrame, old_columns: List[str], new_columns: List[str]) -> DataFrame:
         """
@@ -118,9 +124,3 @@ class SparkUtils:
         :rtype: DataFrame
         """
         return first_dataframe.join(second_dataframe, key_column, join_type)
-
-    def destroy_spark_connection(self):
-        """
-        Stop spark connection.
-        """
-        self.spark.stop()
